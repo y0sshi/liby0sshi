@@ -11,7 +11,7 @@ CFLAGS       = -I`pwd`/include
 SHARED_FLAGS = -shared -fPIC $(CFLAGS)
 PY_FLAGS     = $(SHARED_FLAGS) $(PY_BOOST)
 INSTALL_ALL  = $(LIB)/liby0sshi_pspl.so $(INCLUDE)/pspl.hpp \
-							 $(PY_SO) $(LDCONF) $(PKGCONF) $(PREFIX)/include/y0sshi.hpp
+	$(PY_SO) $(LDCONF) $(PKGCONF) $(PREFIX)/include/y0sshi.hpp
 #########################################################################
 
 
