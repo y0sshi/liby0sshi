@@ -8,6 +8,8 @@
 #include <sys/mman.h>
 #include <errno.h>
 
+#include <string>
+
 #define WRITE_ADDR   0
 #define WRITE_VALUE  1
 #define WRITE_ENABLE 2
@@ -18,17 +20,19 @@ namespace y0sshi {
 		private:
 			unsigned int *reg;
 			int uiofd;
-			unsigned int read_reg(int addr);
-			void write_reg(int addr, int value);
+			unsigned int read_reg(int);
+			void write_reg(int, int);
 		protected:
 		public:
 			pspl();
+			pspl(const char *);
+			pspl(std::string);
 			~pspl();
-			bool open_device();
+			bool open_device(const char *);
 			bool map_address();
 			void free_device();
-			unsigned int read(int addr);
-			void write(int addr, int value);
+			unsigned int read(int);
+			void write(int, int);
 	};
 };
 

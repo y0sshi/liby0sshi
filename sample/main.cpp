@@ -9,7 +9,7 @@ int main() {
 	int addr, value;
 	std::string str;
 	bool exit_flag = false;
-	y0sshi::pspl fpga;
+	y0sshi::pspl fpga("/dev/uio0");
 
 	std::cout << "########################" << std::endl;
 	std::cout << "# read  <addr>         #" << std::endl;

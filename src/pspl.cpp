@@ -2,8 +2,22 @@
 
 namespace y0sshi {
 	pspl::pspl() {
-		printf("openning device...\n");
-		open_device();
+		printf("openning /dev/uio0...\n");
+		open_device("/dev/uio0");
+		map_address();
+		printf("done !!\n");
+	}
+
+	pspl::pspl(const char *dev) {
+		printf("openning %s...\n", dev);
+		open_device(dev);
+		map_address();
+		printf("done !!\n");
+	}
+
+	pspl::pspl(std::string dev) {
+		printf("openning %s...\n", dev.c_str());
+		open_device(dev.c_str());
 		map_address();
 		printf("done !!\n");
 	}
@@ -14,8 +28,8 @@ namespace y0sshi {
 		printf("done !!\n");
 	}
 
-	bool pspl::open_device() {
-		if ((uiofd = open("/dev/uio0", O_RDWR | O_SYNC)) < 0) {
+	bool pspl::open_device(const char *dev) {
+		if ((uiofd = open(dev, O_RDWR | O_SYNC)) < 0) {
 			perror("open");
 			return false;
 		}
