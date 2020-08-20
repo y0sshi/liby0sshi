@@ -2,53 +2,59 @@
 
 namespace y0sshi {
 	pspl::pspl() {
-		printf("openning /dev/uio0...\n");
-		open_device("/dev/uio0");
-		map_address();
-		printf("done !!\n");
 	}
 
 	pspl::pspl(const char *dev) {
-		printf("openning %s...\n", dev);
-		open_device(dev);
-		map_address();
-		printf("done !!\n");
+		if (!open_flag) {
+			printf("openning %s...\n", dev);
+			open_device(dev);
+			printf("done !!\n");
+		}
 	}
 
 	pspl::pspl(std::string dev) {
-		printf("openning %s...\n", dev.c_str());
-		open_device(dev.c_str());
-		map_address();
-		printf("done !!\n");
+		if (!open_flag) {
+			printf("openning %s...\n", dev.c_str());
+			open_device(dev.c_str());
+			printf("done !!\n");
+		}
 	}
 
 	pspl::~pspl() {
-		printf("free device...\n");
-		free_device();
-		printf("done !!\n");
+		if (open_flag) {
+			printf("close device...\n");
+			close_device();
+			printf("done !!\n");
+		}
 	}
 
 	bool pspl::open_device(const char *dev) {
+		/* open device */
 		if ((uiofd = open(dev, O_RDWR | O_SYNC)) < 0) {
 			perror("open");
 			return false;
 		}
-		return true;
-	}
 
-	bool pspl::map_address() {
+		/* mmap register */
 		reg = (unsigned int *)mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, uiofd, 0);
 		if (reg == MAP_FAILED) {
 			perror("cannot mmap");
 			close(uiofd);
 			return false;
 		}
+
+		/* change flag */
+		open_flag = true;
+
 		return true;
 	}
 
-	void pspl::free_device() {
+	bool pspl::close_device() {
 		munmap((void*)reg, 0x1000);
 		close(uiofd);
+		open_flag = false;
+
+		return true;
 	}
 
 	unsigned int pspl::read_reg(int addr) {

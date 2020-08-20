@@ -22,6 +22,7 @@ namespace y0sshi {
 			int uiofd;
 			unsigned int read_reg(int);
 			void write_reg(int, int);
+			bool open_flag;
 		protected:
 		public:
 			pspl();
@@ -29,8 +30,7 @@ namespace y0sshi {
 			pspl(std::string);
 			~pspl();
 			bool open_device(const char *);
-			bool map_address();
-			void free_device();
+			bool close_device();
 			unsigned int read(int);
 			void write(int, int);
 	};
