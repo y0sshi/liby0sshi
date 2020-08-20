@@ -2,9 +2,11 @@
 
 namespace y0sshi {
 	pspl::pspl() {
+		open_flag = false;
 	}
 
 	pspl::pspl(const char *dev) {
+		open_flag = false;
 		if (!open_flag) {
 			printf("openning %s...\n", dev);
 			open_device(dev);
@@ -13,6 +15,7 @@ namespace y0sshi {
 	}
 
 	pspl::pspl(std::string dev) {
+		open_flag = false;
 		if (!open_flag) {
 			printf("openning %s...\n", dev.c_str());
 			open_device(dev.c_str());
