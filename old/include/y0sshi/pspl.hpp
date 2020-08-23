@@ -7,31 +7,32 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <errno.h>
-#include <stdint.h>
 
 #include <string>
+
+#define WRITE_ADDR   0
+#define WRITE_VALUE  1
+#define WRITE_ENABLE 2
+#define READ_ADDR    3
 
 namespace y0sshi {
 	class pspl {
 		private:
-			uint32_t *reg_;
-			int uiofd_;
-			bool open_flag_;
-			bool mtx_w_;
-			bool mtx_r_;
-			void lock(bool&);
-			void unlock(bool&);
+			unsigned int *reg;
+			int uiofd;
+			unsigned int read_reg(int);
+			void write_reg(int, int);
+			bool open_flag;
 		protected:
 		public:
 			pspl();
 			pspl(const char *);
 			pspl(std::string);
 			~pspl();
-			void init();
 			bool open_device(const char *);
 			bool close_device();
-			uint32_t read(uint32_t);
-			void write(uint32_t, uint32_t);
+			unsigned int read(int);
+			void write(int, int);
 	};
 };
 

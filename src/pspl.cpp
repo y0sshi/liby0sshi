@@ -2,12 +2,12 @@
 
 namespace y0sshi {
 	pspl::pspl() {
-		open_flag = false;
+		init();
 	}
 
 	pspl::pspl(const char *dev) {
-		open_flag = false;
-		if (!open_flag) {
+		init();
+		if (!open_flag_) {
 			printf("openning %s...\n", dev);
 			open_device(dev);
 			printf("done !!\n");
@@ -15,8 +15,8 @@ namespace y0sshi {
 	}
 
 	pspl::pspl(std::string dev) {
-		open_flag = false;
-		if (!open_flag) {
+		init();
+		if (!open_flag_) {
 			printf("openning %s...\n", dev.c_str());
 			open_device(dev.c_str());
 			printf("done !!\n");
@@ -24,59 +24,72 @@ namespace y0sshi {
 	}
 
 	pspl::~pspl() {
-		if (open_flag) {
+		if (open_flag_) {
 			printf("close device...\n");
 			close_device();
 			printf("done !!\n");
 		}
 	}
 
+	void pspl::init() {
+		open_flag_ = false;
+		mtx_w_     = false;
+		mtx_r_     = false;
+	}
+
 	bool pspl::open_device(const char *dev) {
 		/* open device */
-		if ((uiofd = open(dev, O_RDWR | O_SYNC)) < 0) {
+		if ((uiofd_ = open(dev, O_RDWR | O_SYNC)) < 0) {
 			perror("open");
 			return false;
 		}
 
 		/* mmap register */
-		reg = (unsigned int *)mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, uiofd, 0);
-		if (reg == MAP_FAILED) {
+		reg_ = (unsigned int *)mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, uiofd_, 0);
+		if (reg_ == MAP_FAILED) {
 			perror("cannot mmap");
-			close(uiofd);
+			close(uiofd_);
 			return false;
 		}
 
 		/* change flag */
-		open_flag = true;
+		open_flag_ = true;
 
 		return true;
 	}
 
 	bool pspl::close_device() {
-		munmap((void*)reg, 0x1000);
-		close(uiofd);
-		open_flag = false;
+		munmap((void*)reg_, 0x1000);
+		close(uiofd_);
+		open_flag_ = false;
 
 		return true;
 	}
 
-	unsigned int pspl::read_reg(int addr) {
-		return reg[addr];
+	void pspl::lock(bool& mutex) {
+		while (mutex);
+		mutex = true;
 	}
 
-	void pspl::write_reg(int addr, int value) {
-		reg[addr] = value;
+	void pspl::unlock(bool& mutex) {
+		mutex = false;
 	}
 
-	unsigned int pspl::read(int addr) {
-		write_reg(READ_ADDR, addr);
-		return read_reg(3);
+	uint32_t pspl::read(uint32_t addr) {
+		uint32_t value;
+		lock(mtx_r_);
+		value = reg_[addr];
+		unlock(mtx_r_);
+
+		return value;
 	}
 
-	void pspl::write(int addr, int value) {
-		write_reg(WRITE_ADDR  , addr);  // set addr
-		write_reg(WRITE_ENABLE, 0x1);   // enable
-		write_reg(WRITE_VALUE , value); // write value to register
-		write_reg(WRITE_ENABLE, 0x0);   // enable
+	void pspl::write(uint32_t addr, uint32_t value) {
+		lock(mtx_w_);
+		reg_[addr] = value;
+		unlock(mtx_w_);
+
+		return;
 	}
+
 };

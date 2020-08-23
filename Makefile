@@ -6,10 +6,10 @@ PY_SO        = $(PREFIX)/lib/python3.8/$(PY_TARGET)
 LIB          = $(PREFIX)/lib/y0sshi
 INCLUDE      = $(PREFIX)/include/y0sshi
 LDCONF       = /etc/ld.so.conf.d/y0sshi.conf
-PKGCONF      = /usr/lib/arm-linux-gnueabihf/pkgconfig/y0sshi.pc
+PKGCONF      = $(PREFIX)/lib/arm-linux-gnueabihf/pkgconfig/y0sshi.pc
 CFLAGS       = -I`pwd`/include
 SHARED_FLAGS = -shared -fPIC $(CFLAGS)
-PY_FLAGS     = $(SHARED_FLAGS) $(PY_BOOST)
+PY_FLAGS     = $(SHARED_FLAGS) $(PY_BOOST) -DPYTHON
 INSTALL_ALL  = $(LIB)/liby0sshi_pspl.so $(INCLUDE)/pspl.hpp \
 	$(PY_SO) $(LDCONF) $(PKGCONF) $(PREFIX)/include/y0sshi.hpp
 #########################################################################
@@ -19,7 +19,7 @@ default: all
 
 
 ################################# Build #################################
-all: lib/$(PY_TARGET) lib/liby0sshi_pspl.so
+all: lib/liby0sshi_pspl.so lib/$(PY_TARGET)
 
 lib/$(PY_TARGET): src/pyy0sshi.cpp lib/pspl.o
 	g++ src/pyy0sshi.cpp lib/pspl.o -o lib/$(PY_TARGET) $(PY_FLAGS)
@@ -43,7 +43,7 @@ uninstall:
 	ldconfig
 
 $(PY_SO): lib/$(PY_TARGET)
-	mkdir -p /usr/lib/python3.8
+	mkdir -p $(PREFIX)/lib/python3.8
 	cp lib/$(PY_TARGET) $(PY_SO)
 
 $(LIB)/liby0sshi_pspl.so: lib/liby0sshi_pspl.so
@@ -54,7 +54,7 @@ $(PREFIX)/include/y0sshi.hpp:
 	cp include/y0sshi.hpp $(PREFIX)/include/y0sshi.hpp
 
 $(INCLUDE)/pspl.hpp: include/y0sshi/pspl.hpp
-	mkdir -p /usr/include/y0sshi
+	mkdir -p $(PREFIX)/include/y0sshi
 	cp include/y0sshi/pspl.hpp $(INCLUDE)/pspl.hpp
 
 $(LDCONF): config/y0sshi.conf
@@ -63,7 +63,7 @@ $(LDCONF): config/y0sshi.conf
 	ldconfig
 
 $(PKGCONF): config/y0sshi.pc
-	mkdir -p /usr/lib/arm-linux-gnueabihf/pkgconfig/
+	mkdir -p $(PREFIX)/lib/arm-linux-gnueabihf/pkgconfig/
 	cp config/y0sshi.pc $(PKGCONF)
 #########################################################################
 

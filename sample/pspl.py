@@ -3,7 +3,7 @@
 import y0sshi
 
 ## open zynq-PL
-fpga = y0sshi.pspl("/dev/uio0")
+fpga = y0sshi.pspl("/dev/uio6")
 
 ## script
 print('###########################')
